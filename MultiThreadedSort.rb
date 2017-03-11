@@ -1,14 +1,21 @@
-
+require "timeout"
 module MultiThreadedSort
 	refine Array do 
 		# def size
 		# 	return -1
 		# end
-		def sort
-			output_arr = self.dup()
-			start_index = 0
-			end_index = output_arr.size()
-			return merge_sort(output_arr, start_index, end_index)
+		def msort(duration)
+			timeout_thread= Thread.new{
+				Timeout::timeout(duration){
+					output_arr = self.dup()
+					start_index = 0
+					end_index = output_arr.size()
+					timeout_thread[:result]= merge_sort(output_arr, start_index, end_index)
+				}
+			}
+
+			timeout_thread.join()
+			return timeout_thread[:result]
 		end
 
 		def merge_sort(output_arr, start_index, end_index)
@@ -23,8 +30,21 @@ module MultiThreadedSort
 			right_array = output_arr[m+1..len]
 			# p left_array
 			# p right_array
-			ordered_left_array = merge_sort(left_array, 0, left_array.size())
-			ordered_right_array = merge_sort(right_array, 0 , right_array.size())
+
+			left_thread=Thread.new do
+				left_thread[:return_left_array] = merge_sort(left_array, 0, left_array.size())
+			end
+		
+
+			right_thread=Thread.new do
+				right_thread[:return_right_array]=merge_sort(right_array, 0 , right_array.size())
+			end
+
+			
+			left_thread.join()
+			right_thread.join()
+			ordered_left_array=left_thread[:return_left_array]
+			ordered_right_array=right_thread[:return_right_array]
 
 			i = 0
 			j = 0
