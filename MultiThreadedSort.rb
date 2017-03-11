@@ -4,21 +4,41 @@ module MultiThreadedSort
 		# def size
 		# 	return -1
 		# end
-		def msort(duration)
-			timeout_thread= Thread.new{
-				Timeout::timeout(duration){
-					output_arr = self.dup()
-					start_index = 0
-					end_index = output_arr.size()
-					timeout_thread[:result]= merge_sort(output_arr, start_index, end_index)
-				}
-			}
 
-			timeout_thread.join()
-			return timeout_thread[:result]
+		def get_comparator(&block)
+
+			if !block_given?
+				puts "found no block"
+				myproc= Proc.new{|a,b|a<=>b} 
+				return myproc 
+			end
+
+			return Proc.new
 		end
 
-		def merge_sort(output_arr, start_index, end_index)
+		def msort(duration, &block)
+
+			comparator = get_comparator(&block)
+			begin
+				timeout_thread= Thread.new{
+					Timeout::timeout(duration){
+						output_arr = self.dup()
+						start_index = 0
+						end_index = output_arr.size()
+						timeout_thread[:result]= merge_sort(output_arr, start_index, end_index,comparator)
+					}
+				}
+
+				timeout_thread.join()
+				return timeout_thread[:result]
+			rescue Timeout::Error => e
+				puts e.message
+				puts "timed out"
+				timeout_thread.kill
+			end
+		end
+
+		def merge_sort(output_arr, start_index, end_index, comparator)
 			# puts "merge sort"
 			if end_index <= 1
 				return output_arr
@@ -32,12 +52,12 @@ module MultiThreadedSort
 			# p right_array
 
 			left_thread=Thread.new do
-				left_thread[:return_left_array] = merge_sort(left_array, 0, left_array.size())
+				Thread.current[:return_left_array] = merge_sort(left_array, 0, left_array.size(), comparator)
 			end
 		
 
 			right_thread=Thread.new do
-				right_thread[:return_right_array]=merge_sort(right_array, 0 , right_array.size())
+				Thread.current[:return_right_array]=merge_sort(right_array, 0 , right_array.size(), comparator)
 			end
 
 			
@@ -56,10 +76,34 @@ module MultiThreadedSort
 			# puts "comparing: "
 			# p ordered_left_array
 			# p ordered_right_array
+			# if (ordered_left_array.size() == 1 and ordered_right_array.size() == 1)
+			# 	if ordered_left_array[0] < ordered_right_array[0]
+			# 		return_array = ordered_left_array + ordered_right_array
+			# 	elsif ordered_left_array[0] > ordered_right_array[0]
+			# 		return_array = ordered_right_array + ordered_left_array
+			# 	end
+			# else
+			# 	while ((i != ordered_left_array.size()) or (j != ordered_right_array.size()))
+			# 		if i == ordered_left_array.size()
+			# 			return_array << ordered_right_array[j]
+			# 			j+=1
+			# 		elsif j == ordered_right_array.size()
+			# 			return_array << ordered_left_array[i]
+			# 			i+=1
+			# 		elsif ordered_left_array[i] >= ordered_right_array[j]
+			# 			return_array << ordered_right_array[j]
+			# 			j+=1
+			# 		elsif ordered_left_array[i] < ordered_right_array[j]
+			# 			return_array << ordered_left_array[i]
+			# 			i+=1
+			# 		end
+			# 	end
+			# end
+
 			if (ordered_left_array.size() == 1 and ordered_right_array.size() == 1)
-				if ordered_left_array[0] < ordered_right_array[0]
+				if 0 > comparator.call(ordered_left_array[0],ordered_right_array[0])#ordered_left_array[0] < ordered_right_array[0]
 					return_array = ordered_left_array + ordered_right_array
-				elsif ordered_left_array[0] > ordered_right_array[0]
+				elsif 0 < comparator.call(ordered_left_array[0],ordered_right_array[0])# ordered_left_array[0] > ordered_right_array[0]
 					return_array = ordered_right_array + ordered_left_array
 				end
 			else
@@ -70,10 +114,10 @@ module MultiThreadedSort
 					elsif j == ordered_right_array.size()
 						return_array << ordered_left_array[i]
 						i+=1
-					elsif ordered_left_array[i] >= ordered_right_array[j]
+					elsif 0 <= comparator.call(ordered_left_array[i], ordered_right_array[j]) #ordered_left_array[i] >= ordered_right_array[j]
 						return_array << ordered_right_array[j]
 						j+=1
-					elsif ordered_left_array[i] < ordered_right_array[j]
+					elsif 0 > comparator.call(ordered_left_array[i], ordered_right_array[j]) #ordered_left_array[i] < ordered_right_array[j]
 						return_array << ordered_left_array[i]
 						i+=1
 					end

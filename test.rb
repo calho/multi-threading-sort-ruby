@@ -7,17 +7,20 @@ using MultiThreadedSort
 
 time = ARGV[0].to_i
 
-object = ARGV[1].tr('[]', '').split(",").map(&:to_i)
+number_of_object = ARGV[1].to_i#.tr('[]', '').split(",").map(&:to_i)
 
 puts time
+
+array_of_objects = Array.new (number_of_object){rand(-100..100)}
+
 puts "my unordered array"
-p object	
+p array_of_objects	
 
 puts
 
-ordered = object.msort(time)
+result = array_of_objects.msort(time)
 
 puts "ordered array"
-p ordered
+p result
 
 
