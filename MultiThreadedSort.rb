@@ -37,7 +37,11 @@ module MultiThreadedSort
 			# p ordered_left_array
 			# p ordered_right_array
 			if (ordered_left_array.size() == 1 and ordered_right_array.size() == 1)
-				return_array = ordered_left_array + ordered_right_array
+				if ordered_left_array[0] < ordered_right_array[0]
+					return_array = ordered_left_array + ordered_right_array
+				elsif ordered_left_array[0] > ordered_right_array[0]
+					return_array = ordered_right_array + ordered_left_array
+				end
 			else
 				while ((i != ordered_left_array.size()) or (j != ordered_right_array.size()))
 					if i == ordered_left_array.size()
