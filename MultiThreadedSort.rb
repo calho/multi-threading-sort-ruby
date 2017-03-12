@@ -38,48 +38,45 @@ module MultiThreadedSort
 			end
 		end
 
-		def merge_sort(output_arr, start_index, end_index, comparator)
+		def merge_sort(output_array, start_index, end_index, comparator)
 			# puts "merge sort"
 			if end_index <= 1
-				return output_arr
+				return output_array
 			end
-			len = end_index
-			m = (len/2).floor - 1
-			# puts m
-			left_array = output_arr[0..m]
-			right_array = output_arr[m+1..len]
+			
+			left_array, right_array = split(output_array)
+
 			# p left_array
 			# p right_array
 
-			left_thread=Thread.new do
-				Thread.current[:return_left_array] = merge_sort(left_array, 0, left_array.size(), comparator)
-			end
+			# left_thread=Thread.new do
+			# 	Thread.current[:return_left_array] = merge_sort(left_array, 0, left_array.size(), comparator)
+			# end
 		
 
-			right_thread=Thread.new do
-				Thread.current[:return_right_array]=merge_sort(right_array, 0 , right_array.size(), comparator)
-			end
+			# right_thread=Thread.new do
+			# 	Thread.current[:return_right_array]=merge_sort(right_array, 0 , right_array.size(), comparator)
+			# end
 
+			left_thread = run_concurrently(left_array, comparator)
+			right_thread = run_concurrently(right_array, comparator)
 			
 			left_thread.join()
 			right_thread.join()
-			ordered_left_array=left_thread[:return_left_array]
-			ordered_right_array=right_thread[:return_right_array]
+			ordered_left_array=left_thread[:return_array]
+			ordered_right_array=right_thread[:return_array]
 
-			i = 0
-			j = 0
+			# i = 0
+			# j = 0
 
-			return_array = []
+			# return_array = []
 
 
 
-			# puts "comparing: "
-			# p ordered_left_array
-			# p ordered_right_array
 			# if (ordered_left_array.size() == 1 and ordered_right_array.size() == 1)
-			# 	if ordered_left_array[0] < ordered_right_array[0]
+			# 	if 0 > comparator.call(ordered_left_array[0],ordered_right_array[0])#ordered_left_array[0] < ordered_right_array[0]
 			# 		return_array = ordered_left_array + ordered_right_array
-			# 	elsif ordered_left_array[0] > ordered_right_array[0]
+			# 	elsif 0 < comparator.call(ordered_left_array[0],ordered_right_array[0])# ordered_left_array[0] > ordered_right_array[0]
 			# 		return_array = ordered_right_array + ordered_left_array
 			# 	end
 			# else
@@ -90,15 +87,49 @@ module MultiThreadedSort
 			# 		elsif j == ordered_right_array.size()
 			# 			return_array << ordered_left_array[i]
 			# 			i+=1
-			# 		elsif ordered_left_array[i] >= ordered_right_array[j]
+			# 		elsif 0 <= comparator.call(ordered_left_array[i], ordered_right_array[j]) #ordered_left_array[i] >= ordered_right_array[j]
 			# 			return_array << ordered_right_array[j]
 			# 			j+=1
-			# 		elsif ordered_left_array[i] < ordered_right_array[j]
+			# 		elsif 0 > comparator.call(ordered_left_array[i], ordered_right_array[j]) #ordered_left_array[i] < ordered_right_array[j]
 			# 			return_array << ordered_left_array[i]
 			# 			i+=1
 			# 		end
 			# 	end
 			# end
+
+			return_array = merge(ordered_left_array, ordered_right_array, comparator)
+
+			puts "returning"
+			p return_array
+
+			return return_array
+
+
+
+		end
+
+		def run_concurrently(array, comparator)
+			thread=Thread.new do
+				Thread.current[:return_array] = merge_sort(array, 0, array.size(), comparator)
+			end
+
+			return thread
+		end
+
+		def split(output_array)
+			len = output_array.size
+			m = (len/2).floor - 1
+			# puts m
+			left_array = output_array[0..m]
+			right_array = output_array[m+1..len]
+			return left_array, right_array
+		end
+
+		def merge(ordered_left_array, ordered_right_array, comparator)
+			i = 0
+			j = 0
+
+			return_array = []
 
 			if (ordered_left_array.size() == 1 and ordered_right_array.size() == 1)
 				if 0 > comparator.call(ordered_left_array[0],ordered_right_array[0])#ordered_left_array[0] < ordered_right_array[0]
@@ -126,19 +157,7 @@ module MultiThreadedSort
 
 			puts "returning"
 			p return_array
-
 			return return_array
-
-
-
-		end
-
-		def split(arr)
-			istart
-			iend
-		end
-
-		def merge
 
 		end
 
