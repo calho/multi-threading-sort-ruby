@@ -15,9 +15,6 @@ end
 
 def post_split(left_array, right_array, output_array)
   assert((left_array.size + right_array.size) ==output_array.size, "split failed")
-  original_checksum = left_array.inject(0){|sum,x| sum+x} + right_array.inject(0){|sum,x| sum+x}
-  result_checksum = output_array.inject(0){|sum,x| sum+x}
-  assert original_checksum == result_checksum, 'split failed'
 end
 
 def pre_run_concurrently(array, comparator)
