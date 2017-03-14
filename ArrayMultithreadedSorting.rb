@@ -6,7 +6,7 @@ module ArrayMultithreadedSorting
 		# 	return -1
 		# end
 		def m_merge_sort(duration)
-			MultiThreadedSort.msort(1000, self)
+			MultiThreadedSort.msort(duration, self)
 		end
 
 

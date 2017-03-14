@@ -6,7 +6,6 @@ module MultiThreadedSort
 
 	extend Test::Unit::Assertions
 	def self.get_comparator(&block)
-
 		if !block_given?
 			# puts "found no block"
 			myproc= Proc.new{|a,b|a<=>b}
@@ -17,9 +16,11 @@ module MultiThreadedSort
 	end
 
 	def self.msort(duration, arr, &block)
-
+		pre_msort(duration, arr)
+		duration = duration.to_i
 		comparator = get_comparator(&block)
 		begin
+			start_time = Time.new
 			timeout_thread= Thread.new{
 				Timeout::timeout(duration){
 					output_arr = arr.dup()
@@ -30,16 +31,21 @@ module MultiThreadedSort
 			}
 
 			timeout_thread.join()
-			return timeout_thread[:result]
+			result = timeout_thread[:result]
+			finish_time = Time.new
+			elapsed_time = (finish_time - start_time)*1000
+			post_msort(result, arr, timeout_thread, elapsed_time, duration)
+			return result
 		rescue Timeout::Error => e
 			puts e.message
 			puts "timed out"
 			timeout_thread.kill
+			post_msort_timedout(timeout_thread)
 		end
 	end
 
 	def self.merge_sort(output_array, start_index, end_index, comparator)
-		# puts "merge sort"
+		pre_merge_sort(output_array, comparator)
 		if end_index <= 1
 			return output_array
 		end
@@ -57,6 +63,7 @@ module MultiThreadedSort
 		ordered_right_array=right_thread[:return_array]
 
 		return_array = merge(ordered_left_array, ordered_right_array, comparator)
+		post_merge_sort(output_array, return_array, left_thread, right_thread)
 
 		return return_array
 
@@ -65,10 +72,17 @@ module MultiThreadedSort
 	end
 
 	def self.run_concurrently(array, comparator)
-		thread=Thread.new do
-			Thread.current[:return_array] = merge_sort(array, 0, array.size(), comparator)
+		pre_run_concurrently(array, comparator)
+		thread_created = false
+		while(!thread_created)
+			thread=Thread.new do
+				Thread.current[:return_array] = merge_sort(array, 0, array.size(), comparator)
+			end
+			if thread.alive? 
+				thread_created = true
+			end 
 		end
-
+		post_run_concurrently(thread)
 		return thread
 	end
 
@@ -91,7 +105,7 @@ module MultiThreadedSort
 		return_array = []
 
 		if (ordered_left_array.size() == 1 and ordered_right_array.size() == 1)
-			if 0 > comparator.call(ordered_left_array[0],ordered_right_array[0])#ordered_left_array[0] < ordered_right_array[0]
+			if 0 >= comparator.call(ordered_left_array[0],ordered_right_array[0])#ordered_left_array[0] < ordered_right_array[0]
 				return_array = ordered_left_array + ordered_right_array
 			elsif 0 < comparator.call(ordered_left_array[0],ordered_right_array[0])# ordered_left_array[0] > ordered_right_array[0]
 				return_array = ordered_right_array + ordered_left_array
@@ -113,8 +127,7 @@ module MultiThreadedSort
 				end
 			end
 		end
-
-		# post_merge(ordered_left_array, ordered_right_array,return_array)
+		post_merge(ordered_left_array, ordered_right_array,return_array)
 		return return_array
 	end
 

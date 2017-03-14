@@ -8,11 +8,11 @@ include Test::Unit::Assertions
 # a.merge_sort
 # puts len
 
-time = ARGV[0].to_i
+time = ARGV[0]
 
 number_of_object = ARGV[1].to_i#.tr('[]', '').split(",").map(&:to_i)
 
-puts time
+# puts time
 
 array_of_objects = Array.new (number_of_object){rand(-100..100)}
 
