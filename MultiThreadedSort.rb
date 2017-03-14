@@ -113,7 +113,7 @@ module MultiThreadedSort
 			end
 		end
 
-		post_merge(ordered_left_array, ordered_right_array,return_array)
+		# post_merge(ordered_left_array, ordered_right_array,return_array)
 		return return_array
 	end
 

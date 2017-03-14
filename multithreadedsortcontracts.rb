@@ -4,9 +4,9 @@ def pre_merge(ordered_left_array, ordered_right_array)
 end
 
 def post_merge(ordered_left_array, ordered_right_array,return_array)
-	original_checksum = ordered_left_array.inject(0){|sum,x| sum+x} + ordered_right_array.inject(0){|sum,x| sum+x}
-	result_checksum = return_array.inject(0){|sum,x| sum+x}
-	assert original_checksum == result_checksum, 'merge failed, missing objects'
+	original_size = ordered_left_array.size + ordered_right_array.size
+	result_size = return_array.size
+	assert original_size == result_size, 'merge failed, missing objects'
 end
 
 def pre_split(output_array)

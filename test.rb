@@ -22,12 +22,13 @@ p array_of_objects
 puts
 
 result = array_of_objects.m_merge_sort(time)
-puts "ordered array"
-p array_of_objects
+# puts "ordered array"
+# p array_of_objects
 # begin
 #   result = array_of_objects.m_merge_sort(time)
-#   puts "ordered array"
-#   p result
+puts "ordered array"
+p result
+p result.size
 # rescue Test::Unit::AssertionFailedError => e
 #   # puts e.backtrace
 #   p array_of_objects
