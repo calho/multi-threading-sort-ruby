@@ -1,6 +1,12 @@
 require "timeout"
+require 'test/unit'
+require_relative 'multiThreadedSortContract'
 module MultiThreadedSort
-	refine Array do 
+	# include multi-threaded-sort-contract
+	extend Test::Unit::Assertions
+	class Array  
+		include MultiThreadedSort
+		using MultiThreadedSort
 		# def size
 		# 	return -1
 		# end
@@ -126,6 +132,7 @@ module MultiThreadedSort
 		end
 
 		def merge(ordered_left_array, ordered_right_array, comparator)
+			MultiThreadedSort.pre_merge(ordered_left_array, ordered_right_array)
 			i = 0
 			j = 0
 
